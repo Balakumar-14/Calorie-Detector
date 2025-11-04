@@ -1,14 +1,44 @@
-# 🍽️ Calorie Detector
+# 🍽️ Food Analyzer Pro
 
-A web application that uses AI vision models to analyze food images and estimate nutritional information including calorie counts.
+A sophisticated web application that uses AI vision models to analyze food images and provide comprehensive nutritional information. Track your meals, visualize macronutrients, and maintain a complete history of your dietary intake.
 
-## Features
+## ✨ Features
 
-- 📸 Upload food images via drag & drop or file selection
-- 🤖 AI-powered food identification using vision language models
-- 🔢 Automatic calorie and portion estimation
-- 📊 Detailed nutritional breakdown by food item
-- 🎨 Modern, responsive UI with real-time feedback
+### 🤖 AI-Powered Analysis
+- Advanced food identification using vision language models
+- Automatic portion estimation
+- Comprehensive nutritional breakdown (calories, protein, carbs, fats, fiber)
+- Support for multiple food items in a single image
+
+### 📊 Visualization & Analytics
+- Interactive macronutrient distribution charts
+- Real-time nutritional statistics
+- Color-coded food item cards
+- Responsive data visualization
+
+### 📜 History Tracking
+- Automatic meal history storage (localStorage)
+- View past analyses with timestamps
+- Quick reload of previous meals
+- Delete individual history entries
+
+### 🎨 Modern UI/UX
+- Dark mode toggle
+- Drag & drop file upload
+- Camera capture support for mobile devices
+- Image preview before analysis
+- Smooth animations and transitions
+- Fully responsive design
+
+### 📤 Export Capabilities
+- Export results as JSON
+- Export results as CSV for spreadsheet analysis
+- One-click download functionality
+
+### 🔒 Privacy-Focused
+- All data stored locally (localStorage)
+- No external data sharing
+- Complete control over your data
 
 ## Prerequisites
 
@@ -87,19 +117,34 @@ Analyzes food image and returns nutritional information
 }
 ```
 
-## Technology Stack
+## 🛠️ Technology Stack
 
-- **Backend**: Node.js, Express
+- **Backend**: Node.js, Express.js
 - **File Upload**: Multer
 - **AI Integration**: Local LLM API (OpenAI-compatible)
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Charts**: Chart.js
+- **Storage**: Browser localStorage API
+- **Styling**: CSS Grid, Flexbox, CSS Variables for theming
 
-## Screenshots
+## 🎯 Key Enhancements
 
-The application features a modern, gradient-styled interface with:
-- Intuitive drag-and-drop file upload
-- Real-time analysis feedback
-- Formatted JSON results with total calorie calculation
+### Version 2.0 Features
+- **Enhanced Nutritional Data**: Now includes protein, carbs, fats, and fiber
+- **Visual Analytics**: Pie chart showing macronutrient distribution
+- **Persistent History**: Automatically saves and displays analysis history
+- **Dark Mode**: Eye-friendly dark theme option
+- **Camera Support**: Direct camera access for mobile devices
+- **Export Functions**: Download results in JSON or CSV format
+- **Improved UI**: Professional dashboard-style interface
+- **Better Responsiveness**: Optimized for all screen sizes
+
+### UI Components
+- **Stats Dashboard**: Quick overview of total nutritional values
+- **Food Items List**: Detailed breakdown of each detected food
+- **Interactive Charts**: Visual representation of macronutrient ratios
+- **History Timeline**: Chronological list of all past analyses
+- **Image Preview**: See your image before analysis
 
 ## Troubleshooting
 

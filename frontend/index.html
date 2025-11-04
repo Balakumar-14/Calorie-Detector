@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Food Analyzer</title>
+  <meta charset="UTF-8">
+  <title>Food Analyzer Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -10,40 +12,118 @@
       padding: 0;
     }
 
+    :root {
+      --primary-color: #667eea;
+      --secondary-color: #764ba2;
+      --success-color: #48bb78;
+      --danger-color: #e53e3e;
+      --warning-color: #ed8936;
+      --bg-color: #f7fafc;
+      --card-bg: #ffffff;
+      --text-color: #2d3748;
+      --text-secondary: #718096;
+      --border-color: #e2e8f0;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1a202c;
+      --card-bg: #2d3748;
+      --text-color: #f7fafc;
+      --text-secondary: #cbd5e0;
+      --border-color: #4a5568;
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--bg-color);
+      color: var(--text-color);
       min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 4px 12px var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
+      gap: 10px;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .theme-toggle, .clear-history-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .theme-toggle:hover, .clear-history-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 40px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 500px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
     }
 
-    h1 {
-      text-align: center;
-      color: #2d3748;
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 30px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 12px var(--shadow);
+      border: 1px solid var(--border-color);
+      transition: all 0.3s;
     }
 
-    #uploadForm {
+    .card h2 {
+      margin-bottom: 20px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .upload-section {
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -52,28 +132,27 @@
     .file-input-wrapper {
       position: relative;
       overflow: hidden;
-      border: 2px dashed #cbd5e0;
+      border: 2px dashed var(--border-color);
       border-radius: 16px;
       padding: 40px 20px;
       text-align: center;
       transition: all 0.3s ease;
-      background: linear-gradient(45deg, #f7fafc, #edf2f7);
+      background: var(--bg-color);
       cursor: pointer;
     }
 
     .file-input-wrapper:hover {
-      border-color: #667eea;
-      background: linear-gradient(45deg, #edf2f7, #e2e8f0);
+      border-color: var(--primary-color);
       transform: translateY(-2px);
     }
 
     .file-input-wrapper.dragover {
-      border-color: #667eea;
-      background: linear-gradient(45deg, #ebf8ff, #bee3f8);
+      border-color: var(--primary-color);
+      background: rgba(102, 126, 234, 0.1);
       transform: scale(1.02);
     }
 
-    input[type="file"] {
+    input[type="file"], #cameraInput {
       position: absolute;
       left: -9999px;
       opacity: 0;
@@ -84,7 +163,7 @@
       flex-direction: column;
       align-items: center;
       gap: 12px;
-      color: #4a5568;
+      color: var(--text-secondary);
       font-weight: 500;
       cursor: pointer;
     }
@@ -101,45 +180,67 @@
       transform: scale(1.1);
     }
 
-    button[type="submit"] {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
       color: white;
       border: none;
-      padding: 16px 32px;
+      padding: 14px 28px;
       border-radius: 12px;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      flex: 1;
+      min-width: 150px;
     }
 
-    button[type="submit"]:hover:not(:disabled) {
+    .btn:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
     }
 
-    button[type="submit"]:active {
-      transform: translateY(0);
-    }
-
-    button[type="submit"]:disabled {
-      background: #a0aec0;
+    .btn:disabled {
+      background: var(--text-secondary);
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
 
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--success-color) 0%, #38a169 100%);
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      box-shadow: 0 6px 16px rgba(72, 187, 120, 0.4);
+    }
+
+    #imagePreview {
+      display: none;
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 12px;
+      margin-top: 15px;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
     #loading {
       display: none;
       text-align: center;
-      color: #667eea;
+      color: var(--primary-color);
       font-weight: 600;
       font-size: 1.1rem;
       padding: 20px;
-      background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+      background: rgba(102, 126, 234, 0.1);
       border-radius: 12px;
-      border-left: 4px solid #667eea;
+      border-left: 4px solid var(--primary-color);
       animation: pulse 2s infinite;
     }
 
@@ -148,125 +249,361 @@
       50% { opacity: 0.7; }
     }
 
-    #result {
-      background: #f7fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
       padding: 20px;
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      display: block;
+    }
+
+    .stat-label {
       font-size: 0.9rem;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      overflow-x: auto;
+      color: var(--text-secondary);
+      margin-top: 5px;
+    }
+
+    .food-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .food-item {
+      background: var(--bg-color);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s;
+    }
+
+    .food-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .food-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .food-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-color);
+    }
+
+    .food-calories {
+      color: var(--danger-color);
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .food-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
       margin-top: 20px;
-      min-height: 60px;
-      color: #2d3748;
+    }
+
+    .history-item {
+      background: var(--bg-color);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .history-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .history-date {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .history-stats {
+      display: flex;
+      gap: 15px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .export-btn {
+      background: var(--success-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .export-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
     }
 
     #error {
-      color: #e53e3e;
+      color: var(--danger-color);
       display: none;
-      background: #fed7d7;
-      border: 1px solid #feb2b2;
+      background: rgba(229, 62, 62, 0.1);
+      border: 1px solid var(--danger-color);
       border-radius: 12px;
       padding: 16px;
       margin-top: 20px;
       font-weight: 500;
-      border-left: 4px solid #e53e3e;
+      border-left: 4px solid var(--danger-color);
     }
 
-    .selected-file {
-      margin-top: 12px;
-      padding: 8px 12px;
-      background: #e6fffa;
-      border: 1px solid #81e6d9;
-      border-radius: 8px;
-      color: #234e52;
-      font-size: 0.9rem;
-      font-weight: 500;
+    .empty-state {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 40px;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 600px) {
-      .container {
-        padding: 30px 20px;
-        margin: 10px;
+      .header h1 {
+        font-size: 1.4rem;
       }
 
-      h1 {
-        font-size: 2rem;
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      .file-input-wrapper {
-        padding: 30px 15px;
+      .button-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
       }
     }
-    #result {
-        /* ... existing styles ... */
-        position: relative;
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
     }
 
-    #result::after {
-        content: "";
-        display: block;
-        height: 1px;
-        background: #e2e8f0;
-        margin: 10px 0;
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--text-secondary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-color);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🍽️ Food Analyzer</h1>
-    
-    <form id="uploadForm" enctype="multipart/form-data">
-      <div class="file-input-wrapper" id="fileWrapper">
-        <input type="file" name="image" id="fileInput" required accept="image/*" />
-        <label for="fileInput" class="file-input-label">
-          <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-          </svg>
-          <span>Click to upload or drag & drop</span>
-          <small style="opacity: 0.7;">PNG, JPG, GIF up to 10MB</small>
-        </label>
-        <div id="selectedFile" class="selected-file" style="display: none;"></div>
+  <header class="header">
+    <div class="header-content">
+      <h1>🍽️ Food Analyzer Pro</h1>
+      <div class="header-controls">
+        <button class="clear-history-btn" onclick="clearAllHistory()">🗑️ Clear History</button>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
       </div>
-      
-      <button type="submit">
-        <span>🔍 Analyze Food</span>
-      </button>
-    </form>
+    </div>
+  </header>
 
-    <p id="loading">🧠 Analyzing food, please wait...</p>
-    <pre id="result"></pre>
-    <p id="error"></p>
+  <div class="container">
+    <!-- Upload Section -->
+    <div class="card full-width">
+      <h2>📸 Upload Food Image</h2>
+      <form id="uploadForm" class="upload-section" enctype="multipart/form-data">
+        <div class="file-input-wrapper" id="fileWrapper">
+          <input type="file" name="image" id="fileInput" accept="image/*" />
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" />
+          <label for="fileInput" class="file-input-label">
+            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <span>Click to upload or drag & drop</span>
+            <small style="opacity: 0.7;">PNG, JPG, GIF up to 10MB</small>
+          </label>
+        </div>
+
+        <img id="imagePreview" alt="Preview" />
+
+        <div class="button-group">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('cameraInput').click()">
+            📷 Take Photo
+          </button>
+          <button type="submit" class="btn">
+            🔍 Analyze Food
+          </button>
+        </div>
+      </form>
+
+      <p id="loading">🧠 Analyzing food, please wait...</p>
+      <p id="error"></p>
+    </div>
+
+    <!-- Results Section -->
+    <div class="card" id="resultsCard" style="display: none;">
+      <h2>📊 Nutritional Analysis</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-value" id="totalCalories">0</span>
+          <span class="stat-label">Calories</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value" id="totalProtein">0</span>
+          <span class="stat-label">Protein (g)</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value" id="totalCarbs">0</span>
+          <span class="stat-label">Carbs (g)</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value" id="totalFats">0</span>
+          <span class="stat-label">Fats (g)</span>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="macroChart"></canvas>
+      </div>
+
+      <div class="export-buttons">
+        <button class="export-btn" onclick="exportJSON()">📄 Export JSON</button>
+        <button class="export-btn" onclick="exportCSV()">📊 Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Food Items List -->
+    <div class="card" id="foodItemsCard" style="display: none;">
+      <h2>🥗 Food Items Detected</h2>
+      <div class="food-list" id="foodList"></div>
+    </div>
+
+    <!-- History Section -->
+    <div class="card full-width">
+      <h2>📜 Analysis History</h2>
+      <div id="historyList">
+        <div class="empty-state">No analysis history yet. Upload an image to get started!</div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // Enhanced file input interactions
+    // Global state
+    let currentAnalysis = null;
+    let macroChart = null;
+    let analysisHistory = JSON.parse(localStorage.getItem('foodAnalysisHistory') || '[]');
+
+    // Theme management
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      if (macroChart) {
+        updateChartTheme();
+      }
+    }
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
+    // File handling
     const fileWrapper = document.getElementById('fileWrapper');
     const fileInput = document.getElementById('fileInput');
-    const selectedFileDiv = document.getElementById('selectedFile');
+    const cameraInput = document.getElementById('cameraInput');
+    const imagePreview = document.getElementById('imagePreview');
 
-    // File selection feedback
+    function handleFileSelect(file) {
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
+      handleFileSelect(file);
+    });
+
+    cameraInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
       if (file) {
-        selectedFileDiv.textContent = `📁 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`;
-        selectedFileDiv.style.display = 'block';
-        fileWrapper.style.borderColor = '#48bb78';
-        fileWrapper.style.background = 'linear-gradient(45deg, #f0fff4, #c6f6d5)';
+        // Transfer to main file input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+        handleFileSelect(file);
       }
     });
 
-    // Drag and drop functionality
+    // Drag and drop
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-      fileWrapper.addEventListener(eventName, preventDefaults, false);
+      fileWrapper.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
     });
-
-    function preventDefaults(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
 
     ['dragenter', 'dragover'].forEach(eventName => {
       fileWrapper.addEventListener(eventName, () => fileWrapper.classList.add('dragover'));
@@ -279,54 +616,268 @@
     fileWrapper.addEventListener('drop', (e) => {
       const files = e.dataTransfer.files;
       if (files.length > 0) {
-        fileInput.files = files;
-        fileInput.dispatchEvent(new Event('change'));
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(files[0]);
+        fileInput.files = dataTransfer.files;
+        handleFileSelect(files[0]);
       }
     });
 
-    // Original script logic preserved exactly
-    document.addEventListener("DOMContentLoaded", () => {
-      const form = document.getElementById("uploadForm");
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault(); // ✅ Prevent page reload
-        const uploadButton = form.querySelector("button[type='submit']");
-        const loadingMessage = document.getElementById("loading");
-        const resultDisplay = document.getElementById("result");
-        const errorMessage = document.getElementById("error");
-        // Reset UI
-        resultDisplay.innerText = '';
-        errorMessage.innerText = '';
-        errorMessage.style.display = 'none';
-        loadingMessage.style.display = 'block';
-        uploadButton.disabled = true;
-        try {
-          const formData = new FormData(form);
-          const res = await fetch("http://127.0.0.1:3000/analyze", {
-            method: "POST",
-            body: formData
-          });
-          if (!res.ok) {
-            throw new Error(`Server error: ${res.status} - ${await res.text()}`);
-          }
-          const json = await res.json();
-          // resultDisplay.innerText = JSON.stringify(json, null, 2);
+    // Form submission
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showError('Please select an image first');
+        return;
+      }
 
-          // Calculate total calories
-          const totalCalories = json.food_items.reduce((sum, item) => sum + item.calories, 0);
-          
-          // Create formatted output with total calories
-          const output = `${JSON.stringify(json, null, 2)}\n\n🔥 Approximate Total Calories: ${totalCalories} kcal`;
-          
-          resultDisplay.innerText = output;
-        } catch (error) {
-          console.error("Analysis failed:", error);
-          errorMessage.innerText = `Error: ${error.message || 'Something went wrong.'}`;
-          errorMessage.style.display = 'block';
-        } finally {
-          loadingMessage.style.display = 'none';
-          uploadButton.disabled = false;
+      const uploadButton = e.target.querySelector('button[type="submit"]');
+      const loadingMessage = document.getElementById('loading');
+      const errorMessage = document.getElementById('error');
+
+      // Reset UI
+      errorMessage.style.display = 'none';
+      loadingMessage.style.display = 'block';
+      uploadButton.disabled = true;
+
+      try {
+        const formData = new FormData(e.target);
+        const res = await fetch('http://127.0.0.1:3000/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status} - ${await res.text()}`);
+        }
+
+        const json = await res.json();
+        currentAnalysis = {
+          timestamp: new Date().toISOString(),
+          data: json
+        };
+
+        // Save to history
+        analysisHistory.unshift(currentAnalysis);
+        if (analysisHistory.length > 20) analysisHistory.pop(); // Keep last 20
+        localStorage.setItem('foodAnalysisHistory', JSON.stringify(analysisHistory));
+
+        displayResults(json);
+        updateHistory();
+        
+      } catch (error) {
+        console.error('Analysis failed:', error);
+        showError(`Error: ${error.message || 'Something went wrong.'}`);
+      } finally {
+        loadingMessage.style.display = 'none';
+        uploadButton.disabled = false;
+      }
+    });
+
+    function showError(message) {
+      const errorMessage = document.getElementById('error');
+      errorMessage.innerText = message;
+      errorMessage.style.display = 'block';
+    }
+
+    function displayResults(data) {
+      if (!data.food_items || data.food_items.length === 0) {
+        showError('No food items detected in the image');
+        return;
+      }
+
+      // Calculate totals
+      const totals = data.food_items.reduce((acc, item) => ({
+        calories: acc.calories + (item.calories || 0),
+        protein: acc.protein + (item.protein || 0),
+        carbs: acc.carbs + (item.carbs || 0),
+        fats: acc.fats + (item.fats || 0),
+        fiber: acc.fiber + (item.fiber || 0)
+      }), { calories: 0, protein: 0, carbs: 0, fats: 0, fiber: 0 });
+
+      // Update stats
+      document.getElementById('totalCalories').textContent = totals.calories;
+      document.getElementById('totalProtein').textContent = totals.protein;
+      document.getElementById('totalCarbs').textContent = totals.carbs;
+      document.getElementById('totalFats').textContent = totals.fats;
+
+      // Show results cards
+      document.getElementById('resultsCard').style.display = 'block';
+      document.getElementById('foodItemsCard').style.display = 'block';
+
+      // Update chart
+      updateMacroChart(totals);
+
+      // Display food items
+      const foodList = document.getElementById('foodList');
+      foodList.innerHTML = data.food_items.map(item => `
+        <div class="food-item">
+          <div class="food-item-header">
+            <span class="food-name">${item.name} ${item.count > 1 ? `(×${item.count})` : ''}</span>
+            <span class="food-calories">${item.calories} kcal</span>
+          </div>
+          <div class="food-details">
+            <div>⚖️ ${item.grams}g</div>
+            <div>🥩 P: ${item.protein || 0}g</div>
+            <div>🌾 C: ${item.carbs || 0}g</div>
+            <div>🥑 F: ${item.fats || 0}g</div>
+            ${item.fiber ? `<div>🌿 Fiber: ${item.fiber}g</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateMacroChart(totals) {
+      const ctx = document.getElementById('macroChart');
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const textColor = isDark ? '#f7fafc' : '#2d3748';
+
+      if (macroChart) {
+        macroChart.destroy();
+      }
+
+      macroChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Protein', 'Carbs', 'Fats'],
+          datasets: [{
+            data: [totals.protein * 4, totals.carbs * 4, totals.fats * 9], // Convert to calories
+            backgroundColor: ['#667eea', '#48bb78', '#ed8936'],
+            borderWidth: 2,
+            borderColor: isDark ? '#2d3748' : '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: textColor,
+                font: { size: 14, weight: 'bold' }
+              }
+            },
+            title: {
+              display: true,
+              text: 'Macronutrient Distribution (calories)',
+              color: textColor,
+              font: { size: 16, weight: 'bold' }
+            }
+          }
         }
       });
+    }
+
+    function updateChartTheme() {
+      if (currentAnalysis) {
+        const totals = currentAnalysis.data.food_items.reduce((acc, item) => ({
+          calories: acc.calories + (item.calories || 0),
+          protein: acc.protein + (item.protein || 0),
+          carbs: acc.carbs + (item.carbs || 0),
+          fats: acc.fats + (item.fats || 0)
+        }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
+        updateMacroChart(totals);
+      }
+    }
+
+    function updateHistory() {
+      const historyList = document.getElementById('historyList');
+      
+      if (analysisHistory.length === 0) {
+        historyList.innerHTML = '<div class="empty-state">No analysis history yet. Upload an image to get started!</div>';
+        return;
+      }
+
+      historyList.innerHTML = analysisHistory.map((item, index) => {
+        const date = new Date(item.timestamp);
+        const totals = item.data.food_items.reduce((acc, food) => ({
+          calories: acc.calories + (food.calories || 0),
+          items: acc.items + 1
+        }), { calories: 0, items: 0 });
+
+        return `
+          <div class="history-item" onclick="loadHistoryItem(${index})">
+            <div class="history-header">
+              <span class="history-date">📅 ${date.toLocaleString()}</span>
+              <button class="export-btn" onclick="event.stopPropagation(); deleteHistoryItem(${index})" style="padding: 5px 10px; font-size: 0.85rem;">Delete</button>
+            </div>
+            <div class="history-stats">
+              <span>🍽️ ${totals.items} items</span>
+              <span>🔥 ${totals.calories} kcal</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadHistoryItem(index) {
+      const item = analysisHistory[index];
+      currentAnalysis = item;
+      displayResults(item.data);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteHistoryItem(index) {
+      analysisHistory.splice(index, 1);
+      localStorage.setItem('foodAnalysisHistory', JSON.stringify(analysisHistory));
+      updateHistory();
+    }
+
+    function clearAllHistory() {
+      if (confirm('Are you sure you want to clear all history?')) {
+        analysisHistory = [];
+        localStorage.setItem('foodAnalysisHistory', JSON.stringify(analysisHistory));
+        updateHistory();
+      }
+    }
+
+    function exportJSON() {
+      if (!currentAnalysis) return;
+      
+      const dataStr = JSON.stringify(currentAnalysis.data, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `food-analysis-${Date.now()}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportCSV() {
+      if (!currentAnalysis) return;
+      
+      const items = currentAnalysis.data.food_items;
+      const headers = ['Name', 'Count', 'Grams', 'Calories', 'Protein (g)', 'Carbs (g)', 'Fats (g)', 'Fiber (g)'];
+      const rows = items.map(item => [
+        item.name,
+        item.count || 1,
+        item.grams || 0,
+        item.calories || 0,
+        item.protein || 0,
+        item.carbs || 0,
+        item.fats || 0,
+        item.fiber || 0
+      ]);
+
+      let csv = headers.join(',') + '\n';
+      csv += rows.map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `food-analysis-${Date.now()}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTheme();
+      updateHistory();
     });
   </script>
 </body>

@@ -58,19 +58,24 @@ Format:
   "food_items": [
     {
       "name": "<food_name>",
-      "count":"<integer>,
+      "count": <integer>,
       "grams": <integer>,
-      "calories": <integer>
+      "calories": <integer>,
+      "protein": <integer>,
+      "carbs": <integer>,
+      "fats": <integer>,
+      "fiber": <integer>
     }
   ]
 }
 
 Rules:
 - Always use the key "food_items".
-- Provide realistic grams and calories for each item.
+- Provide realistic estimates for grams, calories, protein (g), carbs (g), fats (g), and fiber (g) for each item.
 - Identify each dish separately (example: rice, chapati, dal, beetroot fry, carrot fry, boiled eggs).
-- If multiple pieces exist (like 8 boiled eggs), count them together and give a total grams + calories estimate.
-- If you feel unsure about an item, include it.
+- If multiple pieces exist (like 8 boiled eggs), count them together and give total nutritional values.
+- All nutritional values should be integers.
+- If you feel unsure about an item, include it with best estimates.
 - Respond only in valid JSON (no extra text).`
         },
         {
