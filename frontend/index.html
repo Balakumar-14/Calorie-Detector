@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Food Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    h1 {
+      text-align: center;
+      color: #2d3748;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #uploadForm {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      border: 2px dashed #cbd5e0;
+      border-radius: 16px;
+      padding: 40px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      background: linear-gradient(45deg, #f7fafc, #edf2f7);
+      cursor: pointer;
+    }
+
+    .file-input-wrapper:hover {
+      border-color: #667eea;
+      background: linear-gradient(45deg, #edf2f7, #e2e8f0);
+      transform: translateY(-2px);
+    }
+
+    .file-input-wrapper.dragover {
+      border-color: #667eea;
+      background: linear-gradient(45deg, #ebf8ff, #bee3f8);
+      transform: scale(1.02);
+    }
+
+    input[type="file"] {
+      position: absolute;
+      left: -9999px;
+      opacity: 0;
+    }
+
+    .file-input-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: #4a5568;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .upload-icon {
+      width: 48px;
+      height: 48px;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+    }
+
+    .file-input-wrapper:hover .upload-icon {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    button[type="submit"] {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    button[type="submit"]:active {
+      transform: translateY(0);
+    }
+
+    button[type="submit"]:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    #loading {
+      display: none;
+      text-align: center;
+      color: #667eea;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 20px;
+      background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    #result {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin-top: 20px;
+      min-height: 60px;
+      color: #2d3748;
+    }
+
+    #error {
+      color: #e53e3e;
+      display: none;
+      background: #fed7d7;
+      border: 1px solid #feb2b2;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 20px;
+      font-weight: 500;
+      border-left: 4px solid #e53e3e;
+    }
+
+    .selected-file {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #e6fffa;
+      border: 1px solid #81e6d9;
+      border-radius: 8px;
+      color: #234e52;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .file-input-wrapper {
+        padding: 30px 15px;
+      }
+    }
+    #result {
+        /* ... existing styles ... */
+        position: relative;
+    }
+
+    #result::after {
+        content: "";
+        display: block;
+        height: 1px;
+        background: #e2e8f0;
+        margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍽️ Food Analyzer</h1>
+    
+    <form id="uploadForm" enctype="multipart/form-data">
+      <div class="file-input-wrapper" id="fileWrapper">
+        <input type="file" name="image" id="fileInput" required accept="image/*" />
+        <label for="fileInput" class="file-input-label">
+          <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+          <span>Click to upload or drag & drop</span>
+          <small style="opacity: 0.7;">PNG, JPG, GIF up to 10MB</small>
+        </label>
+        <div id="selectedFile" class="selected-file" style="display: none;"></div>
+      </div>
+      
+      <button type="submit">
+        <span>🔍 Analyze Food</span>
+      </button>
+    </form>
+
+    <p id="loading">🧠 Analyzing food, please wait...</p>
+    <pre id="result"></pre>
+    <p id="error"></p>
+  </div>
+
+  <script>
+    // Enhanced file input interactions
+    const fileWrapper = document.getElementById('fileWrapper');
+    const fileInput = document.getElementById('fileInput');
+    const selectedFileDiv = document.getElementById('selectedFile');
+
+    // File selection feedback
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        selectedFileDiv.textContent = `📁 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`;
+        selectedFileDiv.style.display = 'block';
+        fileWrapper.style.borderColor = '#48bb78';
+        fileWrapper.style.background = 'linear-gradient(45deg, #f0fff4, #c6f6d5)';
+      }
+    });
+
+    // Drag and drop functionality
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      fileWrapper.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      fileWrapper.addEventListener(eventName, () => fileWrapper.classList.add('dragover'));
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      fileWrapper.addEventListener(eventName, () => fileWrapper.classList.remove('dragover'));
+    });
+
+    fileWrapper.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // Original script logic preserved exactly
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("uploadForm");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault(); // ✅ Prevent page reload
+        const uploadButton = form.querySelector("button[type='submit']");
+        const loadingMessage = document.getElementById("loading");
+        const resultDisplay = document.getElementById("result");
+        const errorMessage = document.getElementById("error");
+        // Reset UI
+        resultDisplay.innerText = '';
+        errorMessage.innerText = '';
+        errorMessage.style.display = 'none';
+        loadingMessage.style.display = 'block';
+        uploadButton.disabled = true;
+        try {
+          const formData = new FormData(form);
+          const res = await fetch("http://127.0.0.1:3000/analyze", {
+            method: "POST",
+            body: formData
+          });
+          if (!res.ok) {
+            throw new Error(`Server error: ${res.status} - ${await res.text()}`);
+          }
+          const json = await res.json();
+          // resultDisplay.innerText = JSON.stringify(json, null, 2);
+
+          // Calculate total calories
+          const totalCalories = json.food_items.reduce((sum, item) => sum + item.calories, 0);
+          
+          // Create formatted output with total calories
+          const output = `${JSON.stringify(json, null, 2)}\n\n🔥 Approximate Total Calories: ${totalCalories} kcal`;
+          
+          resultDisplay.innerText = output;
+        } catch (error) {
+          console.error("Analysis failed:", error);
+          errorMessage.innerText = `Error: ${error.message || 'Something went wrong.'}`;
+          errorMessage.style.display = 'block';
+        } finally {
+          loadingMessage.style.display = 'none';
+          uploadButton.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

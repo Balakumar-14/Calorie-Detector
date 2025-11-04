@@ -1,0 +1,20 @@
+{
+  "name": "calorie-detector",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": ["food", "calorie", "detector", "ai", "nutrition"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "node-fetch": "^3.3.2",
+    "cors": "^2.8.5"
+  },
+  "description": "AI-powered food calorie detection using vision language models"
+}
