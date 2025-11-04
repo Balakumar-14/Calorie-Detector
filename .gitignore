@@ -32,3 +32,8 @@ npm-debug.log*
 *.tmp
 .temp
 
+# LinkedIn and personal notes
+LinkedIn_Post*.md
+PROJECT_SUMMARY.md
+ChatJSONs/
+
